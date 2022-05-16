@@ -44,7 +44,7 @@ func ErrInvalidRequestWithMessage(err error, message string) *Error {
 }
 
 func ErrInternalServer(err error) *Error {
-	return NewErrorResponse("Error Server", http.StatusInternalServerError, nil, err)
+	return NewErrorResponse(err.Error(), http.StatusInternalServerError, nil, err)
 }
 
 func ErrEntityExisted(err error, message string) *Error {

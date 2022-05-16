@@ -26,6 +26,7 @@ func Routes(r *gin.Engine) {
 		v1.GET("/classes/:id", classTransport.GetById)
 
 		v1.POST("/schedules", middlewares.Auth, scheduleTransport.Create)
+		v1.GET("/schedules/class/:id", scheduleTransport.GetByRange)
 
 	}
 }
