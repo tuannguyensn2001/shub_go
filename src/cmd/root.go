@@ -6,6 +6,7 @@ import (
 	"log"
 	"shub_go/src/config"
 	"shub_go/src/models"
+	"shub_go/src/packages/gen_code"
 )
 
 var cmdRoot = &cobra.Command{
@@ -15,7 +16,17 @@ var cmdRoot = &cobra.Command{
 func GetRoot() *cobra.Command {
 	cmdRoot.AddCommand(seedGrade())
 	cmdRoot.AddCommand(seedSubject())
+	cmdRoot.AddCommand(genErrorCode())
 	return cmdRoot
+}
+
+func genErrorCode() *cobra.Command {
+	return &cobra.Command{
+		Use: "gen-error-code",
+		Run: func(cmd *cobra.Command, args []string) {
+			gen_code.GenCode()
+		},
+	}
 }
 
 func seedSubject() *cobra.Command {

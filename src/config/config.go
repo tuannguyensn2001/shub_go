@@ -6,6 +6,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"os"
+	errpkg "shub_go/src/packages/err"
 )
 
 type Config struct {
@@ -59,6 +60,8 @@ func Load() (*Config, error) {
 	}
 
 	Conf = *result
+
+	errpkg.LoadError()
 
 	return result, nil
 }

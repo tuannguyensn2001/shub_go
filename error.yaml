@@ -1,0 +1,22 @@
+general:
+  success:
+    status: 200
+    message: "Success"
+    code: "01"
+  notFound:
+    status: 404
+    message: "Not found"
+    code: "02"
+  forbidden:
+    status: 403
+    message: "Forbidden"
+    code: "03"
+auth:
+  notFound:
+    status: 404
+    message: "Not Found this user"
+    code: "001"
+  invalid:
+    status: 400
+    message: "Email or password not valid"
+    code: "002"

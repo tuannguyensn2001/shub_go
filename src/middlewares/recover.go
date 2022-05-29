@@ -3,6 +3,7 @@ package middlewares
 import (
 	"github.com/gin-gonic/gin"
 	"shub_go/src/app"
+	errpkg "shub_go/src/packages/err"
 )
 
 func Recover(ctx *gin.Context) {
@@ -12,6 +13,11 @@ func Recover(ctx *gin.Context) {
 
 			if appErr, ok := err.(*app.Error); ok {
 				ctx.AbortWithStatusJSON(appErr.StatusCode, appErr)
+				return
+			}
+
+			if appErr, ok := err.(*errpkg.Error); ok {
+				ctx.AbortWithStatusJSON(int(appErr.Status), appErr)
 				return
 			}
 

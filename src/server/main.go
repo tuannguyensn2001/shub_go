@@ -14,7 +14,7 @@ func main() {
 	_, err := config.Load()
 
 	if err != nil {
-		log.Fatalln("config error", err)
+		log.Fatalln("config err", err)
 	}
 
 	rootCmd := cmd.GetRoot()
