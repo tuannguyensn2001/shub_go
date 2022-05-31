@@ -1,9 +1,12 @@
 package cmd
 
 import (
+	"fmt"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"gorm.io/gorm"
 	"log"
+	"os/exec"
 	"shub_go/src/config"
 	"shub_go/src/models"
 	"shub_go/src/packages/gen_code"
@@ -17,6 +20,8 @@ func GetRoot() *cobra.Command {
 	cmdRoot.AddCommand(seedGrade())
 	cmdRoot.AddCommand(seedSubject())
 	cmdRoot.AddCommand(genErrorCode())
+	cmdRoot.AddCommand(migrateCreate())
+	cmdRoot.AddCommand(migrateDB())
 	return cmdRoot
 }
 
@@ -105,6 +110,43 @@ func seedGrade() *cobra.Command {
 			}
 
 			log.Println("seed grade successfully")
+		},
+	}
+}
+
+func migrateCreate() *cobra.Command {
+	return &cobra.Command{
+		Use: "migrate-create",
+		Run: func(cmd *cobra.Command, args []string) {
+			name := args[0]
+
+			out, err := exec.Command("/bin/sh", "-c", "cd src/migrations/"+viper.GetString("DB_SQL")+"; goose create "+name+" sql;").Output()
+
+			if err != nil {
+				log.Fatalln("migrate error", err)
+			}
+
+			log.Println("migrate successfully", string(out))
+		},
+	}
+}
+
+func migrateDB() *cobra.Command {
+	return &cobra.Command{
+		Use: "migrate",
+		Run: func(cmd *cobra.Command, args []string) {
+
+			query := fmt.Sprintf("cd src/migrations/"+viper.GetString("DB_SQL")+"; goose %v %q up;", viper.GetString("DB_SQL"), viper.GetString("DB_URL"))
+
+			log.Println(query)
+			out, err := exec.Command("/bin/sh", "-c", query).Output()
+
+			if err != nil {
+				log.Fatalln("migrate up error", err)
+			}
+
+			log.Println("migrate up successfully", string(out))
+
 		},
 	}
 }

@@ -24,7 +24,7 @@ func NewRepository(db *gorm.DB) *repository {
 func (r *repository) FindByEmail(ctx context.Context, email string) (*models.User, error) {
 	var user models.User
 
-	if err := r.db.Where("email = @email", map[string]interface{}{"email": email}).First(&user).Error; err != nil {
+	if err := r.db.Preload("Profile").Where("email = @email", map[string]interface{}{"email": email}).First(&user).Error; err != nil {
 		return nil, err
 	}
 
@@ -45,7 +45,25 @@ func (r *repository) Create(ctx context.Context, data RegisterInput) (*models.Us
 		Password: password,
 	}
 
-	if err := r.db.Create(&user).Error; err != nil {
+	err = r.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(&user).Error; err != nil {
+			return err
+		}
+
+		profile := models.Profile{
+			Name:   data.Username,
+			Avatar: "https://thumbs.dreamstime.com/b/default-avatar-profile-vector-user-profile-default-avatar-profile-vector-user-profile-profile-179376714.jpg",
+			UserId: user.Id,
+		}
+
+		if err := tx.Create(&profile).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	if err != nil {
 		return nil, err
 	}
 
@@ -55,7 +73,7 @@ func (r *repository) Create(ctx context.Context, data RegisterInput) (*models.Us
 func (r *repository) FindById(ctx context.Context, id int) (*models.User, error) {
 	var user models.User
 
-	query := r.db.Where("id = ?", id).First(&user)
+	query := r.db.Preload("Profile").Where("id = ?", id).First(&user)
 
 	if err := query.Error; err != nil {
 		return nil, err

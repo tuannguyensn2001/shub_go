@@ -1,7 +1,10 @@
 package config
 
 import (
+	"errors"
 	"github.com/spf13/viper"
+	"gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -14,6 +17,7 @@ type Config struct {
 	port      string
 	db        *gorm.DB
 	secretKey string
+	sql       string
 }
 
 func (c *Config) GetSecretKey() string {
@@ -44,9 +48,31 @@ func Load() (*Config, error) {
 		return nil, err
 	}
 
-	db, err := gorm.Open(sqlite.Open(viper.GetString("DB_URL")), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Info),
-	})
+	sql := viper.GetString("DB_SQL")
+	if sql != "postgres" && sql != "mysql" && sql != "sqlite" {
+		return nil, errors.New("db sql not valid")
+	}
+
+	//db, err := gorm.Open(sqlite.Open(viper.GetString("DB_URL")), &gorm.Config{
+	//	Logger: logger.Default.LogMode(logger.Info),
+	//})
+	var db *gorm.DB
+
+	if sql == "postgres" {
+		db, err = gorm.Open(postgres.Open(viper.GetString("DB_URL")), &gorm.Config{
+			Logger: logger.Default.LogMode(logger.Info),
+		})
+	} else if sql == "sqlite" {
+		db, err = gorm.Open(sqlite.Open(viper.GetString("DB_URL")), &gorm.Config{
+			Logger: logger.Default.LogMode(logger.Info),
+		})
+	} else if sql == "mysql" {
+		db, err = gorm.Open(mysql.Open(viper.GetString("DB_URL")), &gorm.Config{
+			Logger: logger.Default.LogMode(logger.Info),
+		})
+	} else {
+		return nil, errors.New("db sql not valid")
+	}
 
 	if err != nil {
 		return nil, err

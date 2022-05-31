@@ -42,7 +42,13 @@ func (s *service) Register(ctx context.Context, input RegisterInput) (*models.Us
 		return nil, app.NewErrorResponse("Register failed", http.StatusInternalServerError, nil, err)
 	}
 
-	return user, err
+	result, err := s.repository.FindById(ctx, user.Id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return result, err
 }
 
 func (s *service) Login(ctx context.Context, input LoginInput) (*LoginOutput, error) {
