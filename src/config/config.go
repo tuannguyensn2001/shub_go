@@ -3,11 +3,13 @@ package config
 import (
 	"errors"
 	"github.com/spf13/viper"
+	"github.com/streadway/amqp"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+	"log"
 	"os"
 	errpkg "shub_go/src/packages/err"
 )
@@ -18,6 +20,7 @@ type Config struct {
 	db        *gorm.DB
 	secretKey string
 	sql       string
+	rabbitmq  *amqp.Connection
 }
 
 func (c *Config) GetSecretKey() string {
@@ -30,6 +33,10 @@ func (c *Config) GetPort() string {
 
 func (c *Config) GetDB() *gorm.DB {
 	return c.db
+}
+
+func (c *Config) GetRabbitMq() *amqp.Connection {
+	return c.rabbitmq
 }
 
 var Conf Config
@@ -78,11 +85,18 @@ func Load() (*Config, error) {
 		return nil, err
 	}
 
+	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+
+	if err != nil {
+		log.Fatalln("err connected rabbitmq")
+	}
+
 	result := &Config{
 		dbUrl:     viper.GetString("DB_URL"),
 		port:      viper.GetString("PORT"),
 		db:        db,
 		secretKey: viper.GetString("SECRET_KEY_JWT"),
+		rabbitmq:  conn,
 	}
 
 	Conf = *result

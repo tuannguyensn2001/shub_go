@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
+	"github.com/streadway/amqp"
 	"log"
 	"shub_go/src/cmd"
 	"shub_go/src/config"
@@ -31,6 +32,14 @@ func main() {
 
 			routes.Routes(r)
 			err := r.Run(":" + conf.GetPort())
+
+			defer func(mq *amqp.Connection) {
+				err := mq.Close()
+				if err != nil {
+
+				}
+			}(config.Conf.GetRabbitMq())
+
 			if err != nil {
 				return
 			}
