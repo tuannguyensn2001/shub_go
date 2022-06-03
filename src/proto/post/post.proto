@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package post;
+
+option go_package = "./postpb";
+
+message CreatePostRequest {
+  string content = 1;
+}
+
+message CreatePostResponse {
+  string content = 1;
+}
+
+service PostService {
+  rpc Create(CreatePostRequest) returns (CreatePostResponse);
+}

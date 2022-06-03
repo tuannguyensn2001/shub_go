@@ -1,12 +1,22 @@
 package routes
 
 import (
+	"flag"
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"google.golang.org/grpc"
+	"log"
+	"net"
 	"shub_go/src/middlewares"
+	classpb "shub_go/src/proto/class"
 	"shub_go/src/service/auth"
 	"shub_go/src/service/manage-class"
 	"shub_go/src/service/post"
 	"shub_go/src/service/schedule"
+)
+
+var (
+	port = flag.Int("port", 11000, "The server port")
 )
 
 func Routes(r *gin.Engine) {
@@ -15,6 +25,23 @@ func Routes(r *gin.Engine) {
 	classTransport := manage_class.NewTransport()
 	scheduleTransport := schedule.NewTransport()
 	postTransport := post.NewTransport()
+
+	go func() {
+		lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
+
+		if err != nil {
+			log.Fatalf("err grpc tcp")
+		}
+
+		s := grpc.NewServer()
+
+		classpb.RegisterClassServiceServer(s, classTransport)
+
+		if err := s.Serve(lis); err != nil {
+			log.Fatalf("failed to serve: %v", err)
+		}
+
+	}()
 
 	v1 := r.Group("/api/v1")
 	{

@@ -52,3 +52,42 @@ func main() {
 	}
 
 }
+
+//package main
+//
+//import (
+//	"context"
+//	"flag"
+//	"google.golang.org/grpc"
+//	"google.golang.org/grpc/credentials/insecure"
+//	"log"
+//	postpb "shub_go/src/proto/post"
+//)
+//
+//var (
+//	addr = flag.String("addr", "localhost:2906", "the address post service")
+//	name = flag.String("name", "post service", "hehe")
+//)
+//
+//func main() {
+//	flag.Parse()
+//
+//	conn, err := grpc.Dial(*addr, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
+//
+//	if err != nil {
+//		log.Fatalf("did not connect: %v", err)
+//	}
+//
+//	defer conn.Close()
+//
+//	c := postpb.NewPostServiceClient(conn)
+//
+//	r, err := c.Create(context.Background(), &postpb.CreatePostRequest{
+//		Content: "hello ban oi",
+//	})
+//
+//	if err != nil {
+//		log.Fatalf("could not greet: %v", err)
+//	}
+//	log.Printf("Greeting: %s", r)
+//}

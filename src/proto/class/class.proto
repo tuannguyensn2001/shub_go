@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package class;
+
+option go_package = "./classpb";
+
+message GetDetailClassResponse {
+  string name = 1;
+}
+
+message GetDetailClassRequest {
+  int64 id = 1;
+}
+
+service ClassService {
+  rpc GetDetailClass(GetDetailClassRequest) returns (GetDetailClassResponse);
+}

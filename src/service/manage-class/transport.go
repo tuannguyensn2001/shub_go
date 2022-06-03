@@ -1,17 +1,20 @@
 package manage_class
 
 import (
+	"context"
 	"errors"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"shub_go/src/app"
 	"shub_go/src/config"
 	"shub_go/src/enums"
+	classpb "shub_go/src/proto/class"
 	"strconv"
 )
 
 type transport struct {
 	service IService
+	classpb.UnimplementedClassServiceServer
 }
 
 func NewTransport() *transport {
@@ -111,4 +114,10 @@ func (t *transport) QueryByUserId(ctx *gin.Context) {
 		Data:  result,
 	}))
 
+}
+
+func (t *transport) GetDetailClass(ctx context.Context, request *classpb.GetDetailClassRequest) (*classpb.GetDetailClassResponse, error) {
+	return &classpb.GetDetailClassResponse{
+		Name: "class 1",
+	}, nil
 }
