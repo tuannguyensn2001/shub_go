@@ -2,6 +2,7 @@ package config
 
 import (
 	"errors"
+	"github.com/pusher/pusher-http-go"
 	"github.com/spf13/viper"
 	"github.com/streadway/amqp"
 	"gorm.io/driver/mysql"
@@ -9,7 +10,6 @@ import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
-	"log"
 	"os"
 	errpkg "shub_go/src/packages/err"
 )
@@ -21,6 +21,7 @@ type Config struct {
 	secretKey string
 	sql       string
 	rabbitmq  *amqp.Connection
+	pusher    *pusher.Client
 }
 
 func (c *Config) GetSecretKey() string {
@@ -37,6 +38,10 @@ func (c *Config) GetDB() *gorm.DB {
 
 func (c *Config) GetRabbitMq() *amqp.Connection {
 	return c.rabbitmq
+}
+
+func (c *Config) GetPusher() *pusher.Client {
+	return c.pusher
 }
 
 var Conf Config
@@ -85,10 +90,18 @@ func Load() (*Config, error) {
 		return nil, err
 	}
 
-	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+	//conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+	//
+	//if err != nil {
+	//	log.Fatalln("err connected rabbitmq")
+	//}
 
-	if err != nil {
-		log.Fatalln("err connected rabbitmq")
+	pusherClient := &pusher.Client{
+		AppID:   "1421588",
+		Key:     "0a54b286a02204700f21",
+		Secret:  "43ab4f11d9d2ae4ddf42",
+		Cluster: "ap1",
+		Secure:  true,
 	}
 
 	result := &Config{
@@ -96,7 +109,7 @@ func Load() (*Config, error) {
 		port:      viper.GetString("PORT"),
 		db:        db,
 		secretKey: viper.GetString("SECRET_KEY_JWT"),
-		rabbitmq:  conn,
+		pusher:    pusherClient,
 	}
 
 	Conf = *result

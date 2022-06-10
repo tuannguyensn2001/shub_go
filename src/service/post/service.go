@@ -2,9 +2,6 @@ package post
 
 import (
 	"context"
-	"encoding/json"
-	"github.com/streadway/amqp"
-	"log"
 	"shub_go/src/config"
 	"shub_go/src/enums"
 	"shub_go/src/models"
@@ -46,34 +43,37 @@ func (s *service) Create(ctx context.Context, input Input, userId int) (*models.
 		return nil, err
 	}
 
-	go func() {
-		rabbit := config.Conf.GetRabbitMq()
+	//go func() {
+	//	rabbit := config.Conf.GetRabbitMq()
+	//
+	//	ch, err := rabbit.Channel()
+	//
+	//	if err != nil {
+	//		log.Fatalln("err channel rabbit")
+	//	}
+	//
+	//	defer ch.Close()
+	//
+	//	q, err := ch.QueueDeclare("create-post", false, false, false, false, nil)
+	//
+	//	if err != nil {
+	//		log.Fatalln("err queue declare")
+	//	}
+	//
+	//	body, _ := json.Marshal(post)
+	//
+	//	err = ch.Publish("", q.Name, false, false, amqp.Publishing{
+	//		ContentType: "application/json",
+	//		Body:        []byte(body),
+	//	})
+	//
+	//	if err != nil {
+	//		log.Fatalln("err queue publish")
+	//	}
+	//}()
 
-		ch, err := rabbit.Channel()
-
-		if err != nil {
-			log.Fatalln("err channel rabbit")
-		}
-
-		defer ch.Close()
-
-		q, err := ch.QueueDeclare("create-post", false, false, false, false, nil)
-
-		if err != nil {
-			log.Fatalln("err queue declare")
-		}
-
-		body, _ := json.Marshal(post)
-
-		err = ch.Publish("", q.Name, false, false, amqp.Publishing{
-			ContentType: "application/json",
-			Body:        []byte(body),
-		})
-
-		if err != nil {
-			log.Fatalln("err queue publish")
-		}
-	}()
+	pusher := config.Conf.GetPusher()
+	pusher.Trigger("class-1", "create-post", result)
 
 	return result, nil
 }
