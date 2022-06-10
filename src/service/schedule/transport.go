@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"shub_go/src/app"
 	"shub_go/src/config"
+	"shub_go/src/service/auth"
 	manage_class "shub_go/src/service/manage-class"
 	"strconv"
 )
@@ -15,7 +16,11 @@ type transport struct {
 
 func NewTransport() *transport {
 	classRepository := manage_class.NewRepository(config.Conf.GetDB())
-	classService := manage_class.NewService(classRepository)
+
+	authRepository := auth.NewRepository(config.Conf.GetDB())
+	authService := auth.NewService(authRepository)
+
+	classService := manage_class.NewService(classRepository, authService)
 
 	repository := NewRepository(config.Conf.GetDB())
 	service := NewService(repository, classService)

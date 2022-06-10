@@ -5,8 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"gorm.io/gorm"
+	"shub_go/src/enums"
 	"shub_go/src/models"
 	"strings"
+	"time"
 )
 
 type IRepository interface {
@@ -16,6 +18,8 @@ type IRepository interface {
 	FindByID(ctx context.Context, id int) (*models.Class, error)
 	FindByCode(ctx context.Context, code string) (*models.Class, error)
 	QueryByUserId(ctx context.Context, userId int, params QueryClass) ([]models.Class, error)
+	InsertUserClass(ctx context.Context, userId int, classId int, role enums.RoleClass) error
+	FindByStudentAndClass(ctx context.Context, studentId int, classId int) (*models.UserClass, error)
 }
 
 type repository struct {
@@ -26,6 +30,24 @@ func NewRepository(db *gorm.DB) *repository {
 	return &repository{
 		db: db,
 	}
+}
+
+func (r *repository) FindByStudentAndClass(ctx context.Context, studentId int, classId int) (*models.UserClass, error) {
+	var output models.UserClass
+	err := r.db.Raw("SELECT * FROM user_class WHERE user_id = ? AND class_id = ?", studentId, classId).Scan(&output).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &output, nil
+}
+
+func (r *repository) InsertUserClass(ctx context.Context, userId int, classId int, role enums.RoleClass) error {
+
+	err := r.db.Exec("INSERT INTO user_class (user_id,class_id,role,created_at,updated_at) VALUES (?,?,?,?,?)", userId, classId, role, time.Now(), time.Now()).Error
+
+	return err
 }
 
 func (r *repository) GetAllSubjects() ([]models.Subject, error) {

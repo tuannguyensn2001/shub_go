@@ -15,3 +15,6 @@ migrate:
 
 seed:
 	@go run $(FOLDER_SERVER)/main.go seed-${name}
+
+migrate-down:
+	@go run $(FOLDER_SERVER)/main.go migrate-down

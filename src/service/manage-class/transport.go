@@ -7,6 +7,7 @@ import (
 	"shub_go/src/app"
 	"shub_go/src/config"
 	"shub_go/src/enums"
+	"shub_go/src/service/auth"
 	"strconv"
 )
 
@@ -16,7 +17,11 @@ type transport struct {
 
 func NewTransport() *transport {
 	repository := NewRepository(config.Conf.GetDB())
-	service := NewService(repository)
+
+	authRepository := auth.NewRepository(config.Conf.GetDB())
+	authService := auth.NewService(authRepository)
+
+	service := NewService(repository, authService)
 
 	return &transport{service: service}
 }
@@ -111,4 +116,32 @@ func (t *transport) QueryByUserId(ctx *gin.Context) {
 		Data:  result,
 	}))
 
+}
+
+func (t *transport) AddStudentToClass(ctx *gin.Context) {
+	classId, err := strconv.Atoi(ctx.Param("id"))
+
+	if err != nil {
+		panic(app.ErrInvalidRequest(err))
+	}
+
+	var input AddMemberInput
+
+	if err := ctx.ShouldBind(&input); err != nil {
+		panic(app.ErrInvalidRequest(err))
+	}
+
+	teacherId, err := auth.GetUserFromGinContext(ctx)
+
+	if err != nil {
+		panic(err)
+	}
+
+	err = t.service.AddStudentToClass(ctx, input.UserId, classId, teacherId)
+
+	if err != nil {
+		panic(err)
+	}
+
+	ctx.JSON(http.StatusOK, app.NewResponse("add successfully", nil))
 }

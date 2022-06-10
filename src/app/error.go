@@ -62,3 +62,7 @@ func ErrEntityNotFound(err error, message string) *Error {
 func ErrConflict(err error, message string) *Error {
 	return NewErrorResponse(message, http.StatusConflict, nil, err)
 }
+
+func ErrForbidden(err error, message string) *Error {
+	return NewErrorResponse(message, http.StatusForbidden, nil, err)
+}

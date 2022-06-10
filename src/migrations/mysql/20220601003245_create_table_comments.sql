@@ -1,9 +1,17 @@
 -- +goose Up
 -- +goose StatementBegin
-SELECT 'up SQL query';
+CREATE TABLE comments (
+    id INT NOT NULL AUTO_INCREMENT,
+    content LONGTEXT,
+    post_id INT,
+    user_id INT,
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP,
+    PRIMARY KEY (id)
+)
 -- +goose StatementEnd
 
 -- +goose Down
 -- +goose StatementBegin
-SELECT 'down SQL query';
+DROP TABLE IF EXISTS comments;
 -- +goose StatementEnd

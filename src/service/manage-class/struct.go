@@ -24,3 +24,7 @@ type QueryClassOutput struct {
 	Total int         `json:"total"`
 	Data  interface{} `json:"data"`
 }
+
+type AddMemberInput struct {
+	UserId int `form:"userId" binding:"required"`
+}

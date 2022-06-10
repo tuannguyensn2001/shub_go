@@ -22,6 +22,7 @@ func GetRoot() *cobra.Command {
 	cmdRoot.AddCommand(genErrorCode())
 	cmdRoot.AddCommand(migrateCreate())
 	cmdRoot.AddCommand(migrateDB())
+	cmdRoot.AddCommand(migrateDown())
 	return cmdRoot
 }
 
@@ -146,6 +147,25 @@ func migrateDB() *cobra.Command {
 			}
 
 			log.Println("migrate up successfully", string(out))
+
+		},
+	}
+}
+
+func migrateDown() *cobra.Command {
+	return &cobra.Command{
+		Use: "migrate-down",
+		Run: func(cmd *cobra.Command, args []string) {
+			query := fmt.Sprintf("cd src/migrations/"+viper.GetString("DB_SQL")+"; goose %v %q down;", viper.GetString("DB_SQL"), viper.GetString("DB_URL"))
+
+			log.Println(query)
+			out, err := exec.Command("/bin/sh", "-c", query).Output()
+
+			if err != nil {
+				log.Fatalln("migrate down error", err)
+			}
+
+			log.Println("migrate down successfully", string(out))
 
 		},
 	}
